@@ -1,0 +1,238 @@
+Documentação para REST APIs do VideoControlServer (v1.0)
+
+
+%!target  : html
+%!encoding: UTF-8
+%!style  : tutorial.css
+%!options : --toc --enum-title --css-inside
+
+= Device API =
+
+Estas APIs são chamadas a partir dos dispositivos de gravação de video. 
+
+- Endereço base: /device/api/v1.0/
+
+
+== notify_new_file ==
+
+- Endereço: /device/api/v1.0/notify_new_file
+- Metodos permitidos: GET, POST
+
+
+=== GET ===
+
+- Função: Consulta, através do hash, se um video já foi enviado.
+- Parâmetros: sha512 e vehicle.
+- Exemplo:
+
+```
+/device/api/v1.0/notify_new_file?vehicle=<vehicle_name>&sha512=<hash string>
+```
+
+- Retornos:
+ - action = 1: Necessita enviar arquivo pesquisado.
+ - action = 0: Arquivo já enviado, nenhuma ação necessária.
+ - error_code differente de 0 significa falha na chamada, descrição de erro no campo msg.
+
+
+=== POST ===
+
+- Função: Informa envio de um arquivo para o servidor NFS.
+- Json:
+
+```
+{
+        "vehicle": fields.String,
+        "filename":	fields.String,
+        "size": fields.Integer,
+        "sha512": fields.String,
+        "datetime": fields.String
+}
+```
+
+- Retornos:
+ - action é sempre 0.
+ - error_code = 1: Arquivo informado não foi encontrado no NFS.
+
+
+== Retorno ==
+
+- Json de resposta:
+
+```
+ServerToDeviceResponseFields = {
+    'action': fields.Integer,
+    'error_code': fields.Integer,
+    'msg' : fields.String
+}
+```
+
+- Retornos:
+ - error_code = 1. Arquivo não encontrado no NFS.
+ - error_code = 2. Falha na verificação de hash. 
+ - Sempre verificar error_code. Se error_code for diferente de 0 
+significa situação de erro. Então, exibir a string no campo msg.
+
+
+= Web Frontend - Video Manager =
+
+Estas rests são chamadas a partir da interface Web para gerência de vídeos.
+
+
+== vehicles_list ==
+
+- Métodos permitidos: GET
+
+
+=== GET ===
+
+- Função: Retorna a lista de veículos que já realizaram upload no servidor.
+- Parâmetros: vehicle.
+- Exemplo:
+
+```
+/device/api/v1.0/vehicles_list?vehicle=<vehicle_name>
+```
+
+- Retornos:
+ - action = 1: Necessita enviar arquivo pesquisado.
+ - action = 0: Arquivo já enviado, nenhuma ação necessária.
+ - error_code differente de 0 significa falha na chamada, descrição de erro no campo msg.
+
+
+== vehicles_video_list ==
+
+- Métodos permitidos: GET
+
+
+=== GET ===
+
+- Função: Retorna a lista de vídeos para um determinado veículo, opcionalmente,
+filtrado por data inicial e final.
+- Parâmetros: vehicles, inidt (opcional) e enddt (opcional).
+- Exemplos:
+
+```
+/webfront/api/v1.0/vehicles_list?vehicle=<vehicle_name>
+/webfront/api/v1.0/vehicles_video_list?vehicle=<veículo_id>&inidt=<data inicial>&enddt=<data final>
+```
+
+- Json de retorno:
+
+```
+{
+    "total_size": Integer,
+    "vehicle_id": String,
+    "error_code": Integer,
+    "msg": String,
+    "videos": [
+        {
+            "filename": String,
+            "datetime": String,
+            "local": String,
+            "size": Integer,
+            "video_id": String,
+            "deleted": Boolean,
+            "sha512": String
+        }
+    ],
+    "vehicle": String
+}
+```
+
+
+Os campos de data string tem o seguinte %d-%m-%YT%H:%M:%S. Exemplo: "08-12-2017T13:20:00"
+
+
+== incident_management ==
+
+- CRUD para cadastro de incidentes. 
+- Métodos permitidos: GET, PUT, POST, DELETE
+
+
+=== GET ===
+
+- Função: Retorna a lista de incidentes.
+- Parâmetros: Nenhum
+- Exemplo:
+
+```
+/webfront/api/v1.0/incident
+```
+
+- Json de resposta:
+
+```
+{
+    "error_code": integer,
+    "msg": String,
+    "incident_list": [
+        {
+            "description": String,
+            "_id": String
+        }
+    ]
+}
+```
+
+
+=== POST ===
+
+- Função: Inseri um novo tipo de incidente.
+- Exemplo:
+
+```
+/webfront/api/v1.0/incident
+```
+
+- Parâmetro Json:
+
+```
+{
+	"description": String
+}
+```
+
+- Json de resposta é mesmo Json do método GET, contendo a lista de 
+incidentes.
+
+
+=== PUT ===
+
+- Função: Altera o campo descrição de incidente.
+- Exemplo:
+
+```
+/webfront/api/v1.0/incident
+```
+
+- Parâmetro Json:
+
+```
+{
+	"description": String,
+	"id": String
+}
+```
+
+- Json de resposta é mesmo Json do método GET, contendo a lista de 
+incidentes. Verificar o campo error_code, em caso de erro o campo msg 
+tem a descrição do erro.
+
+
+=== DELETE ===
+
+- Função: Deleta o registro de um incidente.
+- Exemplo:
+
+```
+/webfront/api/v1.0/incident?_id=5a2bfaf56fb8207bb93e94a9
+```
+
+
+- Json de resposta é mesmo Json do método GET, contendo a lista de 
+incidentes. Verificar o campo error_code, em caso de erro o campo msg 
+tem a descrição do erro.
+
+
+Escrito por Carlos R. Moratelli em %%date(%c).

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+rm -f /usr/local/bin/videoserver
+ln -s /usr/local/videoserver/videoserver /usr/local/bin/videoserver
+mv /usr/local/videoserver/install/video_server.conf /etc
+mv /usr/local/videoserver/install/videoserver.service /etc/systemd/system/multi-user.target.wants/
+systemctl daemon-reload
+service videoserver start
+
+
+

@@ -1,0 +1,350 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<META NAME="generator" CONTENT="http://txt2tags.org">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+<TITLE>Documentação para REST APIs do VideoControlServer (v1.0)</TITLE>
+
+<!-- Included doc/tutorial.css -->
+<STYLE TYPE="text/css">
+pre {
+
+	background-color:#E0E0E0  ;
+	}
+
+</STYLE>
+
+</HEAD><BODY BGCOLOR="white" TEXT="black">
+<CENTER>
+<H1>Documentação para REST APIs do VideoControlServer (v1.0)</H1>
+</CENTER>
+
+<P></P>
+<HR NOSHADE SIZE=1>
+<P></P>
+
+  <OL>
+  <LI><A HREF="#toc1">Device API</A>
+    <UL>
+    <LI><A HREF="#toc2">1.1. notify_new_file</A>
+      <UL>
+      <LI><A HREF="#toc3">1.1.1. GET</A>
+      <LI><A HREF="#toc4">1.1.2. POST</A>
+      </UL>
+    <LI><A HREF="#toc5">1.2. Retorno</A>
+    </UL>
+  <LI><A HREF="#toc6">Web Frontend - Video Manager</A>
+    <UL>
+    <LI><A HREF="#toc7">2.1. vehicles_list</A>
+      <UL>
+      <LI><A HREF="#toc8">2.1.1. GET</A>
+      </UL>
+    <LI><A HREF="#toc9">2.2. vehicles_video_list</A>
+      <UL>
+      <LI><A HREF="#toc10">2.2.1. GET</A>
+      </UL>
+    <LI><A HREF="#toc11">2.3. incident_management</A>
+      <UL>
+      <LI><A HREF="#toc12">2.3.1. GET</A>
+      <LI><A HREF="#toc13">2.3.2. POST</A>
+      <LI><A HREF="#toc14">2.3.3. PUT</A>
+      <LI><A HREF="#toc15">2.3.4. DELETE</A>
+      </UL>
+    </UL>
+  </OL>
+
+<P></P>
+<HR NOSHADE SIZE=1>
+<P></P>
+
+<A NAME="toc1"></A>
+<H1>1. Device API</H1>
+
+<P>
+Estas APIs são chamadas a partir dos dispositivos de gravação de video. 
+</P>
+
+<UL>
+<LI>Endereço base: /device/api/v1.0/
+</UL>
+
+<A NAME="toc2"></A>
+<H2>1.1. notify_new_file</H2>
+
+<UL>
+<LI>Endereço: /device/api/v1.0/notify_new_file
+<LI>Metodos permitidos: GET, POST
+</UL>
+
+<A NAME="toc3"></A>
+<H3>1.1.1. GET</H3>
+
+<UL>
+<LI>Função: Consulta, através do hash, se um video já foi enviado.
+<LI>Parâmetros: sha512 e vehicle.
+<LI>Exemplo:
+<P></P>
+<PRE>
+  /device/api/v1.0/notify_new_file?vehicle=&lt;vehicle_name&gt;&amp;sha512=&lt;hash string&gt;
+</PRE>
+
+<P></P>
+<LI>Retornos:
+ <UL>
+ <LI>action = 1: Necessita enviar arquivo pesquisado.
+ <LI>action = 0: Arquivo já enviado, nenhuma ação necessária.
+ <LI>error_code differente de 0 significa falha na chamada, descrição de erro no campo msg.
+ </UL>
+</UL>
+
+<A NAME="toc4"></A>
+<H3>1.1.2. POST</H3>
+
+<UL>
+<LI>Função: Informa envio de um arquivo para o servidor NFS.
+<LI>Json:
+<P></P>
+<PRE>
+  {
+          "vehicle": fields.String,
+          "filename":	fields.String,
+          "size": fields.Integer,
+          "sha512": fields.String,
+          "datetime": fields.String
+  }
+</PRE>
+
+<P></P>
+<LI>Retornos:
+ <UL>
+ <LI>action é sempre 0.
+ <LI>error_code = 1: Arquivo informado não foi encontrado no NFS.
+ </UL>
+</UL>
+
+<A NAME="toc5"></A>
+<H2>1.2. Retorno</H2>
+
+<UL>
+<LI>Json de resposta:
+<P></P>
+<PRE>
+  ServerToDeviceResponseFields = {
+      'action': fields.Integer,
+      'error_code': fields.Integer,
+      'msg' : fields.String
+  }
+</PRE>
+
+<P></P>
+<LI>Retornos:
+ <UL>
+ <LI>error_code = 1. Arquivo não encontrado no NFS.
+ <LI>error_code = 2. Falha na verificação de hash. 
+ <LI>Sempre verificar error_code. Se error_code for diferente de 0 
+significa situação de erro. Então, exibir a string no campo msg.
+ </UL>
+</UL>
+
+<A NAME="toc6"></A>
+<H1>2. Web Frontend - Video Manager</H1>
+
+<P>
+Estas rests são chamadas a partir da interface Web para gerência de vídeos.
+</P>
+
+<A NAME="toc7"></A>
+<H2>2.1. vehicles_list</H2>
+
+<UL>
+<LI>Métodos permitidos: GET
+</UL>
+
+<A NAME="toc8"></A>
+<H3>2.1.1. GET</H3>
+
+<UL>
+<LI>Função: Retorna a lista de veículos que já realizaram upload no servidor.
+<LI>Parâmetros: vehicle.
+<LI>Exemplo:
+<P></P>
+<PRE>
+  /device/api/v1.0/vehicles_list?vehicle=&lt;vehicle_name&gt;
+</PRE>
+
+<P></P>
+<LI>Retornos:
+ <UL>
+ <LI>action = 1: Necessita enviar arquivo pesquisado.
+ <LI>action = 0: Arquivo já enviado, nenhuma ação necessária.
+ <LI>error_code differente de 0 significa falha na chamada, descrição de erro no campo msg.
+ </UL>
+</UL>
+
+<A NAME="toc9"></A>
+<H2>2.2. vehicles_video_list</H2>
+
+<UL>
+<LI>Métodos permitidos: GET
+</UL>
+
+<A NAME="toc10"></A>
+<H3>2.2.1. GET</H3>
+
+<UL>
+<LI>Função: Retorna a lista de vídeos para um determinado veículo, opcionalmente,
+filtrado por data inicial e final.
+<LI>Parâmetros: vehicles, inidt (opcional) e enddt (opcional).
+<LI>Exemplos:
+<P></P>
+<PRE>
+  /webfront/api/v1.0/vehicles_list?vehicle=&lt;vehicle_name&gt;
+  /webfront/api/v1.0/vehicles_video_list?vehicle=&lt;veículo_id&gt;&amp;inidt=&lt;data inicial&gt;&amp;enddt=&lt;data final&gt;
+</PRE>
+
+<P></P>
+<LI>Json de retorno:
+<P></P>
+<PRE>
+  {
+      "total_size": Integer,
+      "vehicle_id": String,
+      "error_code": Integer,
+      "msg": String,
+      "videos": [
+          {
+              "filename": String,
+              "datetime": String,
+              "local": String,
+              "size": Integer,
+              "video_id": String,
+              "deleted": Boolean,
+              "sha512": String
+          }
+      ],
+      "vehicle": String
+  }
+</PRE>
+
+</UL>
+
+<P>
+Os campos de data string tem o seguinte %d-%m-%YT%H:%M:%S. Exemplo: "08-12-2017T13:20:00"
+</P>
+
+<A NAME="toc11"></A>
+<H2>2.3. incident_management</H2>
+
+<UL>
+<LI>CRUD para cadastro de incidentes. 
+<LI>Métodos permitidos: GET, PUT, POST, DELETE
+</UL>
+
+<A NAME="toc12"></A>
+<H3>2.3.1. GET</H3>
+
+<UL>
+<LI>Função: Retorna a lista de incidentes.
+<LI>Parâmetros: Nenhum
+<LI>Exemplo:
+<P></P>
+<PRE>
+  /webfront/api/v1.0/incident
+</PRE>
+
+<P></P>
+<LI>Json de resposta:
+<P></P>
+<PRE>
+  {
+      "error_code": integer,
+      "msg": String,
+      "incident_list": [
+          {
+              "description": String,
+              "_id": String
+          }
+      ]
+  }
+</PRE>
+
+</UL>
+
+<A NAME="toc13"></A>
+<H3>2.3.2. POST</H3>
+
+<UL>
+<LI>Função: Inseri um novo tipo de incidente.
+<LI>Exemplo:
+<P></P>
+<PRE>
+  /webfront/api/v1.0/incident
+</PRE>
+
+<P></P>
+<LI>Parâmetro Json:
+<P></P>
+<PRE>
+  {
+  	"description": String
+  }
+</PRE>
+
+<P></P>
+<LI>Json de resposta é mesmo Json do método GET, contendo a lista de 
+incidentes.
+</UL>
+
+<A NAME="toc14"></A>
+<H3>2.3.3. PUT</H3>
+
+<UL>
+<LI>Função: Altera o campo descrição de incidente.
+<LI>Exemplo:
+<P></P>
+<PRE>
+  /webfront/api/v1.0/incident
+</PRE>
+
+<P></P>
+<LI>Parâmetro Json:
+<P></P>
+<PRE>
+  {
+  	"description": String,
+  	"id": String
+  }
+</PRE>
+
+<P></P>
+<LI>Json de resposta é mesmo Json do método GET, contendo a lista de 
+incidentes. Verificar o campo error_code, em caso de erro o campo msg 
+tem a descrição do erro.
+</UL>
+
+<A NAME="toc15"></A>
+<H3>2.3.4. DELETE</H3>
+
+<UL>
+<LI>Função: Deleta o registro de um incidente.
+<LI>Exemplo:
+<P></P>
+<PRE>
+  /webfront/api/v1.0/incident?_id=5a2bfaf56fb8207bb93e94a9
+</PRE>
+
+</UL>
+
+<UL>
+<LI>Json de resposta é mesmo Json do método GET, contendo a lista de 
+incidentes. Verificar o campo error_code, em caso de erro o campo msg 
+tem a descrição do erro.
+</UL>
+
+<P>
+Escrito por Carlos R. Moratelli em Sat Dec  9 13:47:15 2017.
+</P>
+
+<!-- html code generated by txt2tags 2.6 (http://txt2tags.org) -->
+<!-- cmdline: txt2tags doc/rest_documentation.txt -->
+</BODY></HTML>

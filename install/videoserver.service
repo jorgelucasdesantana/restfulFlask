@@ -1,0 +1,11 @@
+[Unit]
+Description=Video Server
+
+[Service]
+User=root
+ExecStart=/usr/local/videoserver/videoserver
+Restart=on-failure
+
+
+[Install]
+WantedBy=multi-user.target

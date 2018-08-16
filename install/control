@@ -1,0 +1,9 @@
+Package: videoserver
+Version: 1.0
+Section: base
+Priority: optional
+Architecture: amd64
+Depends: python3-pip, ffmpeg, mongodb
+Maintainer: Provisão Sistemas
+Description: Video Server
+	Software de gerênciamento de vídeos.
